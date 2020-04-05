@@ -1,1 +1,1 @@
-web: java -jar request_map-1.0-SNAPSHOT.jar
+web: java -jar target/request_map-1.0-SNAPSHOT.jar
