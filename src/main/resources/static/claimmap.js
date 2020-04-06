@@ -3,11 +3,13 @@ ymaps.ready(init);
 function init() {
     var activeMap = new ymaps.Map("map", {
         center: [59.919486, 30.442504],
-        zoom: 13
+        zoom: 11
     });
 
     var xhr = new XMLHttpRequest();
+    // t0d0 check lambdas safety
     xhr.onload = () => {
+        // t0d0 reflect explicitly if there is no free claims
         var claims = JSON.parse(xhr.responseText);
         claims.forEach(claim => {
             putClaimMark(claim, activeMap);
