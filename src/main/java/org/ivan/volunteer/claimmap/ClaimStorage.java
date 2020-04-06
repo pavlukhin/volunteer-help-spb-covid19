@@ -36,8 +36,9 @@ public class ClaimStorage {
                 }
                 String rawId = csvRec.get(0);
                 String address = csvRec.get(3);
+                String details = csvRec.get(4);
                 validateId(rawId)
-                    .ifPresent(validId -> claims.add(new Claim(validId, address)));
+                    .ifPresent(validId -> claims.add(new Claim(validId, address, details)));
             }
             return claims;
         }

@@ -20,7 +20,10 @@ function init() {
 function putClaimMark(claim, activeMap) {
     var qres = ymaps.geoQuery(ymaps.geocode(claim.address));
     qres.then(function() {
+      // t0d0 handle non-single and failed results gracefully
       var target = qres._objects[0];
+      // t0d0 escape internal html?
+      var claimInfoStr = claim.address + "<br>" + claim.details;
       var gobj = new ymaps.GeoObject(
         feature = {
           geometry: {
@@ -28,8 +31,11 @@ function putClaimMark(claim, activeMap) {
             coordinates: target.geometry._coordinates
             //coordinates: [59.919486, 30.442504]
           },
-          properties: {iconCaption: claim.id}
-          //properties: target.properties
+          properties: {
+            iconCaption: claim.id,
+            balloonContentHeader: claim.id,
+            balloonContentBody: claimInfoStr
+          }
         },
         options = {
           iconColor: "green"
