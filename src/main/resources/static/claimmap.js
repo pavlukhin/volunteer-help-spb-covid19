@@ -20,7 +20,7 @@ function init() {
 }
 
 function putClaimMark(claim, activeMap) {
-    var qres = ymaps.geoQuery(ymaps.geocode(claim.address));
+    var qres = ymaps.geoQuery(ymaps.geocode("Санкт-Петербург, " + claim.address));
     qres.then(function() {
       // t0d0 handle non-single and failed results gracefully
       var target = qres._objects[0];
