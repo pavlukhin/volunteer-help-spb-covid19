@@ -25,6 +25,7 @@ function putClaimMark(claim, activeMap) {
     var claimInfo = getClaimInfo(claim);
     if (claimInfo) {
       // t0d0 use Placemark?
+      // t0d0 handle claims with a same address
       var gobj = new ymaps.GeoObject(
         feature = {
           geometry: {

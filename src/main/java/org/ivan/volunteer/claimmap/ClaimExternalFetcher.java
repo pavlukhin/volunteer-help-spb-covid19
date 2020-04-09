@@ -50,7 +50,7 @@ public class ClaimExternalFetcher {
 //            if (++cnt > 5) break;
             String statusStr = csvRec.get(1);
             Claim.Status status = parseStatus(statusStr);
-            if (status == null) {
+            if (status != Claim.Status.OPEN) {
                 continue;
             }
             String rawId = csvRec.get(0);
