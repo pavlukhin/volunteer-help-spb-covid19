@@ -12,6 +12,7 @@ function init() {
     xhr.onload = () => {
         // t0d0 reflect explicitly if there is no free claims
         var claims = JSON.parse(xhr.responseText);
+//        claims = [claims[0]];
         claims.forEach(claim => {
             putClaimMark(claim, activeMap);
         });
@@ -25,25 +26,44 @@ function putClaimMark(claim, activeMap) {
     qres.then(function() {
       // t0d0 handle non-single and failed results gracefully
       var target = qres._objects[0];
-      // t0d0 escape internal html?
-      var claimInfoStr = claim.address + "<br>" + claim.details;
-      var gobj = new ymaps.GeoObject(
-        feature = {
-          geometry: {
-            type: "Point",
-            coordinates: target.geometry._coordinates
-            //coordinates: [59.919486, 30.442504]
-          },
-          properties: {
-            iconCaption: claim.id,
-            balloonContentHeader: claim.id,
-            balloonContentBody: claimInfoStr
-          }
-        },
-        options = {
-          iconColor: "green"
-        }
-      );
-      activeMap.geoObjects.add(gobj);
+      var claimInfo = getClaimInfo(claim);
+      // t0d0 use Placemark?
+      if (claimInfo) {
+          var gobj = new ymaps.GeoObject(
+            feature = {
+              geometry: {
+                type: "Point",
+                coordinates: target.geometry._coordinates
+                //coordinates: [59.919486, 30.442504]
+              },
+              properties: {
+                iconCaption: claim.id,
+                balloonContentHeader: claim.id,
+                balloonContentBody: claimInfo.balloonText
+              }
+            },
+            options = {
+              iconColor: claimInfo.statusColor
+            }
+          );
+          activeMap.geoObjects.add(gobj);
+      }
     });
+}
+
+function getClaimInfo(claim) {
+    var claimInfo = {};
+    if (claim.status === "OPEN") {
+        claimInfo.statusColor = "green"
+    }
+    else if (claim.status === "IN_PROGRESS") {
+        claimInfo.statusColor = "orange";
+    }
+    else {
+        console.log("Unknown claim status " + JSON.stringify(claim));
+        return null;
+    }
+    // t0d0 escape internal html?
+    claimInfo.balloonText = claim.address + "<br>" + claim.details;
+    return claimInfo;
 }
