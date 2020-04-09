@@ -12,7 +12,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.http.ResponseEntity;
+import org.ivan.volunteer.claimmap.geocoder.GeoCoder;
+import org.ivan.volunteer.claimmap.geocoder.GeoObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -22,15 +24,17 @@ public class ClaimExternalFetcher {
     public static final String SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0/export?format=csv&id=1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0&gid=0";
 
     private final RestOperations restClient;
+    private final GeoCoder geoCoder;
 
-    public ClaimExternalFetcher() {
+    public ClaimExternalFetcher(@Autowired GeoCoder coder) {
+        geoCoder = coder;
         // t0d0 define singleton RestTemplate?
         restClient = new RestTemplate();
     }
 
     public List<Claim> fetchClaims() {
-        ResponseEntity<byte[]> entity = restClient.getForEntity(SPREADSHEET_URL, byte[].class);
-        try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(entity.getBody()))) {
+        byte[] spreadSheetBytes = restClient.getForObject(SPREADSHEET_URL, byte[].class);
+        try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes))) {
             CSVParser parser = CSVFormat.DEFAULT.parse(in);
             return filterClaims(parser);
         }
@@ -39,9 +43,11 @@ public class ClaimExternalFetcher {
         }
     }
 
-    private static List<Claim> filterClaims(CSVParser parser) {
+    private List<Claim> filterClaims(CSVParser parser) {
         ArrayList<Claim> claims = new ArrayList<>();
+        int cnt = 0;
         for (CSVRecord csvRec : parser) {
+//            if (++cnt > 5) break;
             String statusStr = csvRec.get(1);
             Claim.Status status = parseStatus(statusStr);
             if (status == null) {
@@ -50,8 +56,17 @@ public class ClaimExternalFetcher {
             String rawId = csvRec.get(0);
             String address = csvRec.get(3);
             String details = csvRec.get(4);
-            validateId(rawId)
-                .ifPresent(validId -> claims.add(new Claim(validId, address, details, status)));
+            try {
+                validateId(rawId)
+                    .ifPresent(validId -> {
+                        GeoObject geoObj = geoCoder.resolve(address);
+                        String[] coord = new String[] {geoObj.getLatitude(), geoObj.getLongitude()};
+                        claims.add(new Claim(validId, address, details, status, coord));
+                    });
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return claims;
     }

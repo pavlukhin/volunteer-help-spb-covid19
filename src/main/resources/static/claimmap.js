@@ -22,33 +22,28 @@ function init() {
 }
 
 function putClaimMark(claim, activeMap) {
-    var qres = ymaps.geoQuery(ymaps.geocode("Санкт-Петербург, " + claim.address));
-    qres.then(function() {
-      // t0d0 handle non-single and failed results gracefully
-      var target = qres._objects[0];
-      var claimInfo = getClaimInfo(claim);
+    var claimInfo = getClaimInfo(claim);
+    if (claimInfo) {
       // t0d0 use Placemark?
-      if (claimInfo) {
-          var gobj = new ymaps.GeoObject(
-            feature = {
-              geometry: {
-                type: "Point",
-                coordinates: target.geometry._coordinates
-                //coordinates: [59.919486, 30.442504]
-              },
-              properties: {
-                iconCaption: claim.id,
-                balloonContentHeader: claim.id,
-                balloonContentBody: claimInfo.balloonText
-              }
-            },
-            options = {
-              iconColor: claimInfo.statusColor
-            }
-          );
-          activeMap.geoObjects.add(gobj);
-      }
-    });
+      var gobj = new ymaps.GeoObject(
+        feature = {
+          geometry: {
+            type: "Point",
+            coordinates: claim.coord
+//            coordinates: [59.919486, 30.442504]
+          },
+          properties: {
+            iconCaption: claim.id,
+            balloonContentHeader: claim.id,
+            balloonContentBody: claimInfo.balloonText
+          }
+        },
+        options = {
+          iconColor: claimInfo.statusColor
+        }
+      );
+      activeMap.geoObjects.add(gobj);
+    }
 }
 
 function getClaimInfo(claim) {
