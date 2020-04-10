@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Component
 public class ClaimExternalFetcher {
     public static final String SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0/export?format=csv&id=1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0&gid=0";
@@ -34,7 +36,8 @@ public class ClaimExternalFetcher {
 
     public List<Claim> fetchClaims() {
         byte[] spreadSheetBytes = restClient.getForObject(SPREADSHEET_URL, byte[].class);
-        try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes))) {
+//        byte[] spreadSheetBytes = "123,Свободна,,\"Санкт-Петербург, Бадаева 14к1\",Мой дом".getBytes(UTF_8);
+        try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes), UTF_8)) {
             CSVParser parser = CSVFormat.DEFAULT.parse(in);
             return filterClaims(parser);
         }
@@ -84,7 +87,7 @@ public class ClaimExternalFetcher {
         return null;
     }
 
-    private static Pattern claimIdPattern = Pattern.compile("\\d\\d\\d\\d\\d+");
+    private static Pattern claimIdPattern = Pattern.compile("\\d+");
 
     private static Optional<String> validateId(String id) {
         Matcher matcher = claimIdPattern.matcher(id);

@@ -15,11 +15,6 @@ public class ClaimController {
 
     @GetMapping("/api/claims")
     public List<Claim> claims() {
-//        return Arrays.asList(
-//            new Claim(id, "Бадаева 14"),
-//            new Claim(id, "Бадаева 8"),
-//            new Claim(id, "Бадаева 6")
-//        );
         return claimStorage.getClaims();
     }
 }
