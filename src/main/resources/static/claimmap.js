@@ -9,6 +9,28 @@ function init() {
         controls: ["zoomControl"]
     });
 
+    var goButton = new ymaps.control.Button({
+        data: {
+            content: "Поехали!"
+        },
+        options: {
+            selectOnClick: false
+        }
+    });
+    goButton.events.add("click", () => {
+        var map0 = claimsCtx.map;
+        var balloon = map0.balloon;
+        var gobj = balloon.getData().geoObject;
+        if (balloon.isOpen() && gobj) {
+            var routeLink = buildRouteLink(gobj, map0.getCenter(), map0.getZoom());
+            window.open(routeLink);
+        }
+        else {
+            window.alert("Выберите заявку!");
+        }
+    });
+    claimsCtx.map.controls.add(goButton);
+
     var xhr = new XMLHttpRequest();
     // t0d0 check lambdas safety
     xhr.onload = () => {
@@ -83,4 +105,9 @@ function getClaimInfo(claim) {
     // t0d0 escape internal html?
     claimInfo.balloonText = claim.address + "<br>" + claim.details;
     return claimInfo;
+}
+
+function buildRouteLink(toObj, center, zoom) {
+    var toCrd = toObj.geometry.getCoordinates();
+    return "https://yandex.ru/maps/?z=" + zoom + "&ll=" + center[1] + "," + center[0] + "&l=map&rtext=~" + toCrd[0] + "," + toCrd[1] + "&origin=jsapi_2_1_76&from=api-maps";
 }

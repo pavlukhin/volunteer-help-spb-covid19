@@ -27,7 +27,7 @@ public class GeoCoder {
     }
 
     private GeoObject resolveExternal(String address) {
-        URI uri = uriBuilderFactory.builder().queryParam("geocode", "Санкт-Петербург, " + address)
+        URI uri = uriBuilderFactory.builder().queryParam("geocode", address)
             .build();
 
         String responseStr = restClient.getForObject(uri, String.class);

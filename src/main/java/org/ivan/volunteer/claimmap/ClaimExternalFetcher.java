@@ -64,7 +64,7 @@ public class ClaimExternalFetcher {
             try {
                 validateId(rawId)
                     .ifPresent(validId -> {
-                        GeoObject geoObj = geoCoder.resolve(address);
+                        GeoObject geoObj = geoCoder.resolve("Санкт-Петербург, " + address);
                         String[] coord = new String[] {geoObj.getLatitude(), geoObj.getLongitude()};
                         claims.add(new Claim(validId, address, details, status, coord));
                     });
