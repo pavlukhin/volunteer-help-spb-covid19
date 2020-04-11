@@ -23,7 +23,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class ClaimExternalFetcher {
-    public static final String SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0/export?format=csv&id=1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0&gid=0";
+    private static final String SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0/export?format=csv&id=1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0&gid=0";
 
     private final RestOperations restClient;
     private final GeoCoder geoCoder;
@@ -36,7 +36,9 @@ public class ClaimExternalFetcher {
 
     public List<Claim> fetchClaims() {
         byte[] spreadSheetBytes = restClient.getForObject(SPREADSHEET_URL, byte[].class);
-//        byte[] spreadSheetBytes = "123,Свободна,,\"Санкт-Петербург, Бадаева 14к1\",Мой дом".getBytes(UTF_8);
+//        byte[] spreadSheetBytes = ("" +
+//            "1,Свободна,,\"Бадаева 14к1\",Мой дом\n" +
+//            "2,в обработке,,\"Джона Рида 2к2\",Пенсионный фонд").getBytes(UTF_8);
         try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes), UTF_8)) {
             CSVParser parser = CSVFormat.DEFAULT.parse(in);
             return filterClaims(parser);
@@ -53,7 +55,7 @@ public class ClaimExternalFetcher {
 //            if (++cnt > 5) break;
             String statusStr = csvRec.get(1);
             Claim.Status status = parseStatus(statusStr);
-            if (status != Claim.Status.OPEN) {
+            if (status == null) {
                 continue;
             }
             String rawId = csvRec.get(0);
@@ -90,6 +92,7 @@ public class ClaimExternalFetcher {
     private static Pattern claimIdPattern = Pattern.compile("\\d+");
 
     private static Optional<String> validateId(String id) {
+        // t0d0 relax id validation (single claim with multiple id is possible)
         Matcher matcher = claimIdPattern.matcher(id);
         if (matcher.find()) {
             String validId = matcher.group();

@@ -1,7 +1,9 @@
+claimsCtx = {};
+
 ymaps.ready(init);
 
 function init() {
-    var activeMap = new ymaps.Map("map", {
+    claimsCtx.map = new ymaps.Map("map", {
         center: [59.919486, 30.442504],
         zoom: 11,
         controls: ["zoomControl"]
@@ -11,14 +13,33 @@ function init() {
     // t0d0 check lambdas safety
     xhr.onload = () => {
         // t0d0 reflect explicitly if there is no free claims
-        var claims = JSON.parse(xhr.responseText);
-//        claims = [claims[0]];
-        claims.forEach(claim => {
-            putClaimMark(claim, activeMap);
-        });
+        claimsCtx.claims = JSON.parse(xhr.responseText);
+        showMarks();
+        document.getElementById("openClaimsCb").onclick = showMarks;
+        document.getElementById("inProgressClaimsCb").onclick = showMarks;
     };
     xhr.open("GET", "/api/claims");
     xhr.send();
+}
+
+function showMarks() {
+    claimsCtx.map.geoObjects.removeAll();
+    claimsCtx.claims.forEach(claim => {
+        if (claim.status === "OPEN" && showOpenClaims()) {
+            putClaimMark(claim, claimsCtx.map);
+        }
+        if (claim.status === "IN_PROGRESS" && showInProgressClaims()) {
+            putClaimMark(claim, claimsCtx.map);
+        }
+    });
+}
+
+function showOpenClaims() {
+    return document.getElementById("openClaimsCb").checked;
+}
+
+function showInProgressClaims() {
+    return document.getElementById("inProgressClaimsCb").checked;
 }
 
 function putClaimMark(claim, activeMap) {
