@@ -4,11 +4,17 @@
     <meta name="viewport" content="initial-scale=1.2, user-scalable=yes, maximum-scale=10">
     <script src="https://api-maps.yandex.ru/2.1/?apikey=4974aee3-5e70-4487-8a57-b7617d504b23&lang=ru_RU" type="text/javascript">
     </script>
+    <style>
+        .checkbox {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
 </head>
 <body>
     <div>
-        <input type="checkbox" id="openClaimsCb" checked="checked">Новые
-        <input type="checkbox" id="inProgressClaimsCb" checked="checked">В обработке
+        <input type="checkbox" id="openClaimsCb" checked class="checkbox">Новые
+        <input type="checkbox" id="inProgressClaimsCb" checked class="checkbox">В обработке
     </div>
     <div id="map" style="width: 100%; height: 90%"></div>
     <script src="/claimmap.js" type="text/javascript">
