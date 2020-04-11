@@ -20,9 +20,9 @@ function init() {
     goButton.events.add("click", () => {
         var map0 = claimsCtx.map;
         var balloon = map0.balloon;
-        var gobj = balloon.getData().geoObject;
-        if (balloon.isOpen() && gobj) {
-            var routeLink = buildRouteLink(gobj, map0.getCenter(), map0.getZoom());
+        var bData = balloon.getData();
+        if (balloon.isOpen() && bData.geoObject) {
+            var routeLink = buildRouteLink(bData.geoObject, map0.getCenter(), map0.getZoom());
             window.open(routeLink);
         }
         else {
