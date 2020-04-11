@@ -35,7 +35,22 @@ function init() {
     // t0d0 check lambdas safety
     xhr.onload = () => {
         // t0d0 reflect explicitly if there is no free claims
-        claimsCtx.claims = JSON.parse(xhr.responseText);
+        var allClaims = JSON.parse(xhr.responseText);
+
+        var openClaims = new ymaps.Clusterer({
+            clusterDisableClickZoom: true,
+            preset: "islands#greenClusterIcons"
+        });
+        openClaims.add(allClaims.filter(c => c.status === "OPEN").map(c => getClaimMark(c)));
+        claimsCtx.openClaims = openClaims;
+
+        var inProgressClaims = new ymaps.Clusterer({
+            clusterDisableClickZoom: true,
+            preset: "islands#orangeClusterIcons"
+        });
+        inProgressClaims.add(allClaims.filter(c => c.status === "IN_PROGRESS").map(c => getClaimMark(c)));
+        claimsCtx.inProgressClaims = inProgressClaims;
+
         showMarks();
         document.getElementById("openClaimsCb").onclick = showMarks;
         document.getElementById("inProgressClaimsCb").onclick = showMarks;
@@ -46,14 +61,12 @@ function init() {
 
 function showMarks() {
     claimsCtx.map.geoObjects.removeAll();
-    claimsCtx.claims.forEach(claim => {
-        if (claim.status === "OPEN" && showOpenClaims()) {
-            putClaimMark(claim, claimsCtx.map);
-        }
-        if (claim.status === "IN_PROGRESS" && showInProgressClaims()) {
-            putClaimMark(claim, claimsCtx.map);
-        }
-    });
+    if (showOpenClaims()) {
+        claimsCtx.map.geoObjects.add(claimsCtx.openClaims);
+    }
+    if (showInProgressClaims()) {
+        claimsCtx.map.geoObjects.add(claimsCtx.inProgressClaims);
+    }
 }
 
 function showOpenClaims() {
@@ -64,12 +77,13 @@ function showInProgressClaims() {
     return document.getElementById("inProgressClaimsCb").checked;
 }
 
-function putClaimMark(claim, activeMap) {
+function getClaimMark(claim, activeMap) {
+    // t0d0 handle invalid claim info properly
     var claimInfo = getClaimInfo(claim);
     if (claimInfo) {
       // t0d0 use Placemark?
       // t0d0 handle claims with a same address
-      var gobj = new ymaps.GeoObject(
+      return new ymaps.GeoObject(
         feature = {
           geometry: {
             type: "Point",
@@ -86,7 +100,6 @@ function putClaimMark(claim, activeMap) {
           iconColor: claimInfo.statusColor
         }
       );
-      activeMap.geoObjects.add(gobj);
     }
 }
 
