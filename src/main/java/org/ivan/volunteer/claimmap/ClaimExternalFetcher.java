@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.csv.CSVFormat;
@@ -38,7 +37,8 @@ public class ClaimExternalFetcher {
         byte[] spreadSheetBytes = restClient.getForObject(SPREADSHEET_URL, byte[].class);
 //        byte[] spreadSheetBytes = ("" +
 //            "1,Свободна,,\"Бадаева 14к1\",Мой дом\n" +
-//            "2,в обработке,,\"Джона Рида 2к2\",Пенсионный фонд").getBytes(UTF_8);
+//            "2,в обработке,,\"Джона Рида 2к2\",Пенсионный фонд\n" +
+//            "3/4,Свободна,,\"Бадаева 2\",KFC\n").getBytes(UTF_8);
         try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes), UTF_8)) {
             CSVParser parser = CSVFormat.DEFAULT.parse(in);
             return filterClaims(parser);
@@ -58,18 +58,18 @@ public class ClaimExternalFetcher {
             if (status == null) {
                 continue;
             }
-            String rawId = csvRec.get(0);
+            String id = csvRec.get(0);
             String address = csvRec.get(3);
             String details = csvRec.get(4);
             try {
-                validateId(rawId)
-                    .ifPresent(validId -> {
-                        GeoObject geoObj = geoCoder.resolve("Санкт-Петербург, " + address);
-                        String[] coord = new String[] {geoObj.getLatitude(), geoObj.getLongitude()};
-                        claims.add(new Claim(validId, address, details, status, coord));
-                    });
+                if (validateId(id)) {
+                    GeoObject geoObj = geoCoder.resolve("Санкт-Петербург, " + address);
+                    String[] coord = new String[] {geoObj.getLatitude(), geoObj.getLongitude()};
+                    claims.add(new Claim(id, address, details, status, coord));
+                }
             }
             catch (Exception e) {
+                // t0d0 handling or logging
                 e.printStackTrace();
             }
         }
@@ -91,20 +91,9 @@ public class ClaimExternalFetcher {
 
     private static Pattern claimIdPattern = Pattern.compile("\\d+");
 
-    private static Optional<String> validateId(String id) {
+    private static boolean validateId(String id) {
         // t0d0 relax id validation (single claim with multiple id is possible)
         Matcher matcher = claimIdPattern.matcher(id);
-        if (matcher.find()) {
-            String validId = matcher.group();
-            if (matcher.find()) {
-                return Optional.empty();
-            }
-            else {
-                return Optional.of(validId);
-            }
-        }
-        else {
-            return Optional.empty();
-        }
+        return matcher.find();
     }
 }
