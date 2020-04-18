@@ -37,7 +37,7 @@ public class ClaimExternalFetcher {
         byte[] spreadSheetBytes = restClient.getForObject(SPREADSHEET_URL, byte[].class);
 //        byte[] spreadSheetBytes = ("" +
 //            "1,Свободна,,\"Бадаева 14к1\",Мой дом\n" +
-//            "2,в обработке,,\"Джона Рида 2к2\",Пенсионный фонд\n" +
+//            "2,в обработке,Иван Павлухин,\"Джона Рида 2к2\",Пенсионный фонд\n" +
 //            "3/4,Свободна,,\"Бадаева 2\",KFC\n").getBytes(UTF_8);
         try (InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(spreadSheetBytes), UTF_8)) {
             CSVParser parser = CSVFormat.DEFAULT.parse(in);
@@ -59,13 +59,14 @@ public class ClaimExternalFetcher {
                 continue;
             }
             String id = csvRec.get(0);
+            String assignee = csvRec.get(2);
             String address = csvRec.get(3);
             String details = csvRec.get(4);
             try {
                 if (validateId(id)) {
                     GeoObject geoObj = geoCoder.resolve("Санкт-Петербург, " + address);
                     String[] coord = new String[] {geoObj.getLatitude(), geoObj.getLongitude()};
-                    claims.add(new Claim(id, address, details, status, coord));
+                    claims.add(new Claim(id, address, details, status, coord, assignee));
                 }
             }
             catch (Exception e) {

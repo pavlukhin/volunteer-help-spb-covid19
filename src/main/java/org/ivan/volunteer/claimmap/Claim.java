@@ -12,13 +12,15 @@ public class Claim {
     private final String details;
     private final Status status;
     private final String[] coord;
+    private final String assignee;
 
-    public Claim(String id, String address, String details, Status status, String[] coord) {
+    public Claim(String id, String address, String details, Status status, String[] coord, String assignee) {
         this.id = Objects.requireNonNull(id);
         this.address = Objects.requireNonNull(address);
         this.details = Objects.requireNonNull(details);
         this.status = Objects.requireNonNull(status);
         this.coord = Objects.requireNonNull(coord);
+        this.assignee = Objects.requireNonNull(assignee);
     }
 
     // By default getters are needed to include fields to JSON
@@ -41,5 +43,9 @@ public class Claim {
 
     public String[] getCoord() {
         return coord;
+    }
+
+    public String getAssignee() {
+        return assignee;
     }
 }

@@ -116,16 +116,18 @@ function getClaimInfo(claim) {
     var claimInfo = {};
     if (claim.status === "OPEN") {
         claimInfo.statusColor = "green"
+        // t0d0 escape internal html?
+        claimInfo.balloonText = claim.address + "<br>" + claim.details;
     }
     else if (claim.status === "IN_PROGRESS") {
         claimInfo.statusColor = "orange";
+        // t0d0 escape internal html?
+        claimInfo.balloonText = claim.address + "<br>" + claim.details + "<br>Выполняет " + claim.assignee;
     }
     else {
         console.log("Unknown claim status " + JSON.stringify(claim));
         return null;
     }
-    // t0d0 escape internal html?
-    claimInfo.balloonText = claim.address + "<br>" + claim.details;
     return claimInfo;
 }
 
