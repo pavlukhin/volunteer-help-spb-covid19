@@ -1,5 +1,6 @@
 claimsCtx = {};
 
+initFilters();
 ymaps.ready(init);
 
 function init() {
@@ -60,15 +61,42 @@ function init() {
         inProgressClaims.add(allClaims.filter(c => c.status === "IN_PROGRESS").map(c => getClaimMark(c)));
         claimsCtx.inProgressClaims = inProgressClaims;
 
-        showMarks();
-        document.getElementById("openClaimsCb").onclick = showMarks;
-        document.getElementById("inProgressClaimsCb").onclick = showMarks;
+        refreshMarks();
+        document.getElementById("openClaimsCb").onclick = refreshMarks;
+        document.getElementById("inProgressClaimsCb").onclick = refreshMarks;
     };
     xhr.open("GET", "/api/claims");
     xhr.send();
 }
 
-function showMarks() {
+function initFilters() {
+    var showOpen = localStorage.getItem("showOpenClaims");
+    var openClaimsCb = document.getElementById("openClaimsCb");
+    if (showOpen) {
+        if (showOpen === "1") {
+            openClaimsCb.checked = true;
+        }
+    }
+    else {
+        // show open claims by default
+        openClaimsCb.checked = true;
+    }
+
+    var showInProgress = localStorage.getItem("showInProgressClaims");
+    var inProgressClaimsCb = document.getElementById("inProgressClaimsCb");
+    if (showInProgress) {
+        if (showInProgress === "1") {
+            inProgressClaimsCb.checked = true;
+        }
+    }
+    else {
+        // do not show in-progress claims by default
+    }
+}
+
+function refreshMarks() {
+    localStorage.setItem("showOpenClaims", showOpenClaims() ? "1" : "0");
+    localStorage.setItem("showInProgressClaims", showInProgressClaims() ? "1" : "0");
     claimsCtx.map.geoObjects.removeAll();
     if (showOpenClaims()) {
         claimsCtx.map.geoObjects.add(claimsCtx.openClaims);
@@ -91,7 +119,6 @@ function getClaimMark(claim, activeMap) {
     var claimInfo = getClaimInfo(claim);
     if (claimInfo) {
       // t0d0 use Placemark?
-      // t0d0 handle claims with a same address
       return new ymaps.GeoObject(
         feature = {
           geometry: {
