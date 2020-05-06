@@ -24,15 +24,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class ClaimStorage {
     private final ClaimFetcher claimFetcher;
     private final GeoCoder geoCoder;
+    private final Notifier notifier;
 
     private volatile List<Claim> claims = Collections.emptyList();
 
     public ClaimStorage(
-        @Autowired ClaimFetcher fetcher,
-        @Autowired GeoCoder coder) {
-        claimFetcher = fetcher;
-        geoCoder = coder;
-        reloadClaims();
+        @Autowired ClaimFetcher claimFetcher,
+        @Autowired GeoCoder geoCoder,
+        @Autowired Notifier notifier) {
+        this.claimFetcher = claimFetcher;
+        this.geoCoder = geoCoder;
+        this.notifier = notifier;
+
+        claims = loadClaims();
     }
 
     public List<Claim> getClaims() {
@@ -41,8 +45,27 @@ public class ClaimStorage {
 
     @Scheduled(fixedRate = 60_000)
     private void reloadClaims() {
+        List<Claim> oldClaims = claims;
+        List<Claim> actualClaims;
+        claims = actualClaims = loadClaims();
+
+        sendNotificationIfNeeded(oldClaims, actualClaims);
+    }
+
+    private void sendNotificationIfNeeded(List<Claim> oldClaims, List<Claim> actualClaims) {
+        actualClaims.stream()
+            .filter(ac -> isOpenClaimNotSeenBefore(ac, oldClaims))
+            .findAny().ifPresent(c -> notifier.sendNotification());
+    }
+
+    private boolean isOpenClaimNotSeenBefore(Claim ac, List<Claim> oldClaims) {
+        return ac.getStatus() == Claim.Status.OPEN
+            && oldClaims.stream().noneMatch(oc -> oc.getId().equals(ac.getId()));
+    }
+
+    private List<Claim> loadClaims() {
         // t0d0 configure logging
-        claims = deserialize(claimFetcher.fetchSpreadSheet());
+        return deserialize(claimFetcher.fetchSpreadSheet());
     }
 
     private List<Claim> deserialize(byte[] spreadSheetBytes) {
