@@ -5,9 +5,19 @@ ymaps.ready(init);
 
 function init() {
     claimsCtx.map = new ymaps.Map("map", {
-        center: [59.919486, 30.442504],
-        zoom: 11,
+        center: [
+            getLocalItem("mapCenter0", 59.919486),
+            getLocalItem("mapCenter1", 30.442504)
+        ],
+        zoom: getLocalItem("mapZoom", "11"),
         controls: ["zoomControl"]
+    });
+
+    claimsCtx.map.events.add("boundschange", function(event) {
+        localStorage.setItem("mapZoom", event.get("newZoom"));
+        var newCenter = event.get("newCenter");
+        localStorage.setItem("mapCenter0", newCenter[0]);
+        localStorage.setItem("mapCenter1", newCenter[1]);
     });
 
     var goButton = new ymaps.control.Button({
