@@ -69,28 +69,22 @@ function init() {
     xhr.send();
 }
 
+function getLocalItem(key, dflt) {
+    var v = localStorage.getItem(key);
+    return v == null ? dflt : v;
+}
+
 function initFilters() {
-    var showOpen = localStorage.getItem("showOpenClaims");
+    var showOpen = getLocalItem("showOpenClaims", "1");
     var openClaimsCb = document.getElementById("openClaimsCb");
-    if (showOpen) {
-        if (showOpen === "1") {
-            openClaimsCb.checked = true;
-        }
-    }
-    else {
-        // show open claims by default
+    if (showOpen === "1") {
         openClaimsCb.checked = true;
     }
 
-    var showInProgress = localStorage.getItem("showInProgressClaims");
+    var showInProgress = getLocalItem("showInProgressClaims", "0");
     var inProgressClaimsCb = document.getElementById("inProgressClaimsCb");
-    if (showInProgress) {
-        if (showInProgress === "1") {
-            inProgressClaimsCb.checked = true;
-        }
-    }
-    else {
-        // do not show in-progress claims by default
+    if (showInProgress === "1") {
+        inProgressClaimsCb.checked = true;
     }
 }
 
