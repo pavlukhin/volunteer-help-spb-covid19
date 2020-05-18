@@ -1,12 +1,14 @@
 package org.ivan.volunteer.claimmap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ClaimExternalFetcher implements ClaimFetcher {
-    private static final String SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0/export?format=csv&id=1vTBEpyL_pp7MtnmCe7_Z-BG8WfDBg5nTapRQBjHp1z0&gid=0";
+    @Value("${spreadsheet.url}")
+    private String spreadsheetUrl;
 
     private final RestOperations restClient;
 
@@ -16,6 +18,6 @@ public class ClaimExternalFetcher implements ClaimFetcher {
     }
 
     @Override public byte[] fetchSpreadSheet() {
-        return restClient.getForObject(SPREADSHEET_URL, byte[].class);
+        return restClient.getForObject(spreadsheetUrl, byte[].class);
     }
 }

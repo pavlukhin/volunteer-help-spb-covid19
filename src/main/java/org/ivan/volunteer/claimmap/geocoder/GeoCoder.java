@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -14,13 +15,16 @@ import org.springframework.web.util.UriBuilderFactory;
 
 @Component
 public class GeoCoder {
-    private static final String GEOCODER_URL = "https://geocode-maps.yandex.ru/1.x?apikey=4974aee3-5e70-4487-8a57-b7617d504b23&format=json";
-
     private final ConcurrentMap<String, GeoObject> geoObjectCache = new ConcurrentHashMap<>();
     // t0d0 feign client here?
     private final RestOperations restClient = new RestTemplate();
-    private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(GEOCODER_URL);
+    private UriBuilderFactory uriBuilderFactory;
     private final ObjectMapper jsonMapper = new ObjectMapper();
+
+    public GeoCoder(
+        @Value("https://geocode-maps.yandex.ru/1.x?apikey=${ymaps.api.key}&format=json") String geocoderUrl) {
+        uriBuilderFactory = new DefaultUriBuilderFactory(geocoderUrl);
+    }
 
     public GeoObject resolve(String address) {
         return geoObjectCache.computeIfAbsent(address, this::resolveExternal);
