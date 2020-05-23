@@ -57,18 +57,24 @@ function init() {
         // t0d0 reflect explicitly if there is no free claims
         var allClaims = JSON.parse(xhr.responseText);
 
+        var openClaims0 = allClaims.filter(c => c.status === "OPEN");
+        document.getElementById("openClaimsCbSuffix").textContent = "(" + openClaims0.length + ")";
+
         var openClaims = new ymaps.Clusterer({
             clusterDisableClickZoom: true,
             preset: "islands#greenClusterIcons"
         });
-        openClaims.add(allClaims.filter(c => c.status === "OPEN").map(c => getClaimMark(c)));
+        openClaims.add(openClaims0.map(c => getClaimMark(c)));
         claimsCtx.openClaims = openClaims;
+
+        var inProgressClaims0 = allClaims.filter(c => c.status === "IN_PROGRESS");
+        document.getElementById("inProgressClaimsCbSuffix").textContent = "(" + inProgressClaims0.length + ")";
 
         var inProgressClaims = new ymaps.Clusterer({
             clusterDisableClickZoom: true,
             preset: "islands#orangeClusterIcons"
         });
-        inProgressClaims.add(allClaims.filter(c => c.status === "IN_PROGRESS").map(c => getClaimMark(c)));
+        inProgressClaims.add(inProgressClaims0.map(c => getClaimMark(c)));
         claimsCtx.inProgressClaims = inProgressClaims;
 
         refreshMarks();
