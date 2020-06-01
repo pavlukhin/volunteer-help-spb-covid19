@@ -7,12 +7,12 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ClaimExternalFetcher implements ClaimFetcher {
-    @Value("${spreadsheet.url}")
-    private String spreadsheetUrl;
+    private final String spreadsheetUrl;
 
     private final RestOperations restClient;
 
-    public ClaimExternalFetcher() {
+    public ClaimExternalFetcher(@Value("${spreadsheet.url}") String spreadsheetUrl) {
+        this.spreadsheetUrl = spreadsheetUrl;
         // t0d0 define singleton RestTemplate?
         // t0d0 feign client here?
         restClient = new RestTemplate();
