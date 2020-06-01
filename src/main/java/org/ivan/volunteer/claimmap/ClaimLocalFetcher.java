@@ -10,7 +10,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Primary
 @Profile("testing")
 public class ClaimLocalFetcher implements ClaimFetcher {
-    @Override public byte[] fetchSpreadSheet() {
+    @Override
+    public byte[] fetchSpreadSheet() {
         return ("" +
             "1,Свободна,,\"Бадаева 14к1\",Мой дом\n" +
             "2,в обработке,Иван Павлухин,\"Джона Рида 2к2\",Пенсионный фонд\n" +

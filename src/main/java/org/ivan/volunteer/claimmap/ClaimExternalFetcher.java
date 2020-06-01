@@ -18,7 +18,8 @@ public class ClaimExternalFetcher implements ClaimFetcher {
         restClient = new RestTemplate();
     }
 
-    @Override public byte[] fetchSpreadSheet() {
+    @Override
+    public byte[] fetchSpreadSheet() {
         return restClient.getForObject(spreadsheetUrl, byte[].class);
     }
 }
