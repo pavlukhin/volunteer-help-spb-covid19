@@ -18,7 +18,7 @@ public class GeoCoder {
     private final ConcurrentMap<String, GeoObject> geoObjectCache = new ConcurrentHashMap<>();
     // t0d0 feign client here?
     private final RestOperations restClient = new RestTemplate();
-    private UriBuilderFactory uriBuilderFactory;
+    private final UriBuilderFactory uriBuilderFactory;
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public GeoCoder(
