@@ -48,5 +48,4 @@ public class GeoCoder {
             throw new RuntimeException(e);
         }
     }
-
 }
