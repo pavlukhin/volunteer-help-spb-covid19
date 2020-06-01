@@ -14,6 +14,7 @@ public class ClaimExternalFetcher implements ClaimFetcher {
 
     public ClaimExternalFetcher() {
         // t0d0 define singleton RestTemplate?
+        // t0d0 feign client here?
         restClient = new RestTemplate();
     }
 
