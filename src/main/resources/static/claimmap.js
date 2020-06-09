@@ -80,6 +80,8 @@ function init() {
         refreshMarks();
         document.getElementById("openClaimsCb").onclick = refreshMarks;
         document.getElementById("inProgressClaimsCb").onclick = refreshMarks;
+
+        document.getElementById("loaderGlassPanel").style.display = "none";
     };
     xhr.open("GET", "/api/claims");
     xhr.send();
